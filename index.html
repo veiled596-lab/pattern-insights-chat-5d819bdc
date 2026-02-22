@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UpEye - Activity & Pattern Tracking</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <div class="logo-section">
+                <h1>👁️ UpEye</h1>
+                <p class="tagline">Track Activities. Discover Patterns.</p>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main id="main-content">
+            
+            <!-- Home Page View -->
+            <div id="home-view" class="view">
+                <div class="hero-section">
+                    <div class="hero-image">
+                        <img src="https://bookriot.com/wp-content/uploads/2023/05/longest-running-comic-strips-2-300x161.jpg.optimal.jpg" alt="UpEye - Track Your Daily Activities" />
+                    </div>
+                    <div class="hero-text">
+                        <h2>Welcome to UpEye</h2>
+                        <p>Monitor your daily activities and discover meaningful patterns in your behavior.</p>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button id="select-user-btn" class="primary-btn">
+                        👤 Select Existing User
+                    </button>
+                    <button id="create-user-btn" class="secondary-btn">
+                        ➕ Create New User
+                    </button>
+                </div>
+            </div>
+
+            <!-- User Selection View -->
+            <div id="user-selection-view" class="view hidden">
+                <h2>Select a User</h2>
+                <div id="users-list" class="users-grid">
+                    <!-- Users will be loaded here dynamically -->
+                </div>
+                <button id="back-to-home" class="back-btn">← Back to Home</button>
+            </div>
+
+            <!-- Create User View -->
+            <div id="create-user-view" class="view hidden">
+                <div class="create-user-form">
+                    <h2>Create New User</h2>
+                    <form id="create-user-form">
+                        <div class="form-group">
+                            <label for="new-username">Username</label>
+                            <input type="text" id="new-username" placeholder="Enter username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="new-email">Email</label>
+                            <input type="email" id="new-email" placeholder="Enter email" required>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="primary-btn">Create User</button>
+                            <button type="button" id="cancel-creation" class="secondary-btn">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Days Table View -->
+            <div id="days-table-view" class="view hidden">
+                <div class="days-header">
+                    <h2>📅 Activity Calendar</h2>
+                    <div class="calendar-controls">
+                        <button id="prev-month" class="nav-btn">←</button>
+                        <span id="current-month-year">February 2026</span>
+                        <button id="next-month" class="nav-btn">→</button>
+                    </div>
+                </div>
+                
+                <div class="calendar-container">
+                    <div class="calendar-grid" id="calendar-grid">
+                        <!-- Calendar will be generated here -->
+                    </div>
+                </div>
+
+                <button id="back-to-selection" class="back-btn">← Back to User Selection</button>
+            </div>
+
+            <!-- Activities View -->
+            <div id="activities-view" class="view hidden">
+                <div class="activities-header">
+                    <h2>📋 Activities for <span id="selected-date"></span></h2>
+                    <button id="add-activity-btn" class="primary-btn">➕ Add Activity</button>
+                </div>
+
+                <div class="activities-list">
+                    <div id="activities-container">
+                        <!-- Activities will be loaded here -->
+                    </div>
+                </div>
+
+                <button id="back-to-days-from-activity" class="back-btn">← Back to Calendar</button>
+            </div>
+
+            <!-- Pattern Diagnostics View -->
+            <div id="pattern-diagnostics-view" class="view hidden">
+                <div class="pattern-header">
+                    <h2>📈 Pattern Diagnostics for <span id="pattern-user-name"></span></h2>
+                    <div class="pattern-actions">
+                        <button id="pattern-log-btn" class="primary-btn">📋 Pattern Log</button>
+                        <button id="pattern-results-btn" class="secondary-btn">📊 Pattern Results</button>
+                        <button id="export-data-btn" class="secondary-btn">📥 Export Data</button>
+                        <button id="back-to-days" class="back-btn">← Back to Calendar</button>
+                    </div>
+                </div>
+                
+                <div class="pattern-content">
+                    <!-- Pattern Length Selection -->
+                    <div class="pattern-length-selector">
+                        <span class="selector-label">Pattern Length:</span>
+                        <button id="pattern-1-btn" class="pattern-length-btn primary-btn">1-Activity (Frequency)</button>
+                        <button id="pattern-2-btn" class="pattern-length-btn secondary-btn">2-Activity Patterns</button>
+                        <button id="pattern-3-btn" class="pattern-length-btn secondary-btn">3-Activity Patterns</button>
+                        <button id="pattern-4-btn" class="pattern-length-btn secondary-btn">4-Activity Patterns</button>
+                    </div>
+                    
+                    <!-- Pattern Log View -->
+                    <div id="pattern-log-view" class="pattern-section">
+                        <h3>📋 Pattern Occurrences</h3>
+                        <div class="pattern-log-container">
+                            <div class="pattern-filters">
+                                <select id="pattern-filter" class="filter-select">
+                                    <option value="all">All Patterns</option>
+                                    <option value="recent">Recent (Last 30 Days)</option>
+                                    <option value="frequent">Frequent (5+ occurrences)</option>
+                                </select>
+                            </div>
+                            <div id="pattern-log-list">
+                                <!-- Pattern items will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pattern Results View -->
+                    <div id="pattern-results-view" class="pattern-section hidden">
+                        <h3>📊 Pattern Analysis Results</h3>
+                        <div class="pattern-stats">
+                            <div class="stat-card">
+                                <h4>Total Patterns</h4>
+                                <div id="total-patterns">0</div>
+                            </div>
+                            <div class="stat-card">
+                                <h4>Most Frequent</h4>
+                                <div id="most-active-pattern">-</div>
+                            </div>
+                            <div class="stat-card">
+                                <h4>Peak Time</h4>
+                                <div id="peak-time">-</div>
+                            </div>
+                        </div>
+                        <div class="pattern-chart" id="pattern-chart">
+                            <!-- Chart will be generated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Details Modal -->
+            <div id="activity-modal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>📋 Activity Details</h3>
+                        <button class="close-btn" onclick="closeActivityModal()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="activity-details">
+                            <!-- Activity details will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Activity Modal -->
+            <div id="add-activity-modal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>➕ Add New Activity</h3>
+                        <button class="close-btn" onclick="closeAddActivityModal()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="add-activity-form">
+                            <div class="form-group">
+                                <label for="activity-name">Activity Name:</label>
+                                <input type="text" id="activity-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="activity-time">Start Time:</label>
+                                <input type="time" id="activity-time" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="activity-productivity">Productivity (1-10):</label>
+                                <input type="number" id="activity-productivity" min="1" max="10" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="activity-satisfaction">Satisfaction (1-10):</label>
+                                <input type="number" id="activity-satisfaction" min="1" max="10" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="activity-heart-rate">Heart Rate:</label>
+                                <input type="number" id="activity-heart-rate" min="40" max="200">
+                            </div>
+                            <div class="form-group">
+                                <label for="activity-stress">Stress Level (1-10):</label>
+                                <input type="number" id="activity-stress" min="1" max="10" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label for="activity-energy">Energy Level (1-10):</label>
+                                <input type="number" id="activity-energy" min="1" max="10" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label for="activity-hydration">Hydration Level (1-10):</label>
+                                <input type="number" id="activity-hydration" min="1" max="10" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label for="activity-sleep">Sleep Quality (1-10):</label>
+                                <input type="number" id="activity-sleep" min="1" max="10" step="0.1">
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="secondary-btn" onclick="closeAddActivityModal()">Cancel</button>
+                                <button type="submit" class="primary-btn">Add Activity</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Messages -->
+            <div id="status-message" class="status-message hidden"></div>
+        </main>
+    </div>
+
+    <!-- Supabase JavaScript SDK (Local Bundle - No CDN Dependencies) -->
+    <script src="supabase.js"></script>
+    <!-- Our app script -->
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
