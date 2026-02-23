@@ -686,6 +686,104 @@ async function loadPatternsForUser() {
 function displayPatternLog() {
     const patternLogList = document.getElementById('pattern-log-list');
     patternLogList.innerHTML = '';
+
+    // Add visualization container
+    const vizContainer = document.getElementById('pattern-visualization');
+    if (!vizContainer) {
+        const vizDiv = document.createElement('div');
+        vizDiv.id = 'pattern-visualization';
+        vizDiv.className = 'pattern-visualization';
+        document.querySelector('#pattern-diagnostics-view').appendChild(vizDiv);
+    }
+    
+    // Filter out unwanted patterns and sort by occurrences
+    const filteredPatterns = AppState.currentPatterns.filter(p => 
+        p.pattern_type !== 'time_based' && 
+        p.pattern_type !== 'health_based' &&
+        !p.pattern_id.includes('morning') &&
+        !p.pattern_id.includes('afternoon') &&
+        !p.pattern_id.includes('high_stress') &&
+        !p.pattern_id.includes('high_energy')
+    );
+    filteredPatterns.sort((a, b) => b.frequency - a.frequency);
+    
+    // Display visualization chart
+    document.getElementById('pattern-visualization').innerHTML = 
+        '<div class="pattern-chart">' +
+        '<h3>📊 Pattern ' + AppState.currentPatternLength + ' - Top ' + Math.min(10, filteredPatterns.length) + ' Patterns</h3>' +
+        '<div class="chart-container">' +
+        filteredPatterns.slice(0, 10).map((pattern, index) => 
+            '<div class="pattern-bar" style="width: ' + ((pattern.frequency / filteredPatterns[0].frequency) * 100) + '%">' +
+            '<div class="pattern-info">' +
+            '<span class="pattern-name">' + pattern.pattern_name.replace(/_/g, ' ').replace(/\\b\\w/g, l => l.toUpperCase()) + '</span>' +
+            '<span class="pattern-count">' + pattern.frequency + ' times</span>' +
+            '<span class="pattern-health">🏥 ' + pattern.health_benefits_score + '/100</span>' +
+            '</div></div>'
+        ).join('') +
+        '</div></div>';
+    
+    // Add filter button
+    const header = document.querySelector('#pattern-diagnostics-view h2');
+    if (header && !document.getElementById('filter-patterns-btn')) {
+        const filterBtn = document.createElement('button');
+        filterBtn.id = 'filter-patterns-btn';
+        filterBtn.className = 'secondary-btn';
+        filterBtn.textContent = '🔍 Filter by Activity';
+        filterBtn.onclick = function() {
+            // Get all unique activities from current patterns
+            const allActivities = [...new Set(AppState.currentPatterns.flatMap(p => p.occurrences.flatMap(o => o.activities)))].sort();
+            
+            if (allActivities.length === 0) {
+                alert('No activities available to filter');
+                return;
+            }
+            
+            // Create modal
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.id = 'pattern-filter-modal';
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;';
+            
+            modal.innerHTML = 
+                '<div style="background: white; padding: 20px; border-radius: 8px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto;">' +
+                '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">' +
+                '<h3>🔍 Filter Patterns by Activity</h3>' +
+                '<button onclick="this.closest(\'.modal\').remove()" style="background: none; border: none; font-size: 20px; cursor: pointer;">×</button>' +
+                '</div>' +
+                '<div style="margin-bottom: 20px;">' +
+                '<label style="display: block; margin-bottom: 10px; font-weight: bold;">Select Activities:</label>' +
+                '<select id="activity-filter" multiple style="width: 100%; height: 150px; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">' +
+                allActivities.map(a => '<option value="' + a + '">' + a + '</option>').join('') +
+                '</select>' +
+                '<small style="display: block; margin-top: 5px; color: #666;">Hold Ctrl/Cmd to select multiple activities</small>' +
+                '</div>' +
+                '<div style="margin-bottom: 20px;">' +
+                '<label style="display: block; margin-bottom: 10px; font-weight: bold;">Filter Type:</label>' +
+                '<div style="display: flex; flex-direction: column; gap: 10px;">' +
+                '<label style="display: flex; align-items: center; cursor: pointer;">' +
+                '<input type="radio" name="filter-type" value="exclusive" checked style="margin-right: 8px;">' +
+                '<span>Exclusive (Only selected activities, no others)</span>' +
+                '</label>' +
+                '<label style="display: flex; align-items: center; cursor: pointer;">' +
+                '<input type="radio" name="filter-type" value="exclusive-plus" style="margin-right: 8px;">' +
+                '<span>Exclusive Plus (Selected activities + others allowed)</span>' +
+                '</label>' +
+                '<label style="display: flex; align-items: center; cursor: pointer;">' +
+                '<input type="radio" name="filter-type" value="non-exclusive" style="margin-right: 8px;">' +
+                '<span>Non-Exclusive (Any selected activity)</span>' +
+                '</label>' +
+                '</div>' +
+                '</div>' +
+                '<div style="display: flex; gap: 10px; justify-content: flex-end;">' +
+                '<button onclick="this.closest(\'.modal\').remove()" style="padding: 10px 20px; border: 1px solid #ccc; background: #f5f5f5; border-radius: 4px; cursor: pointer;">Cancel</button>' +
+                '<button onclick="applyActivityFilter()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Apply Filter</button>' +
+                '</div>' +
+                '</div>';
+            
+            document.body.appendChild(modal);
+        };
+        header.appendChild(filterBtn);
+    }
     
     if (AppState.currentPatterns.length === 0) {
         patternLogList.innerHTML = '<p>No patterns found</p>';
@@ -779,68 +877,113 @@ function showPatternDetails(patternId) {
 // Event Listeners
 function setupEventListeners() {
     // Navigation buttons
-    document.getElementById('select-user-btn').addEventListener('click', loadUsers);
-    document.getElementById('create-user-btn').addEventListener('click', () => showView('create-user-view'));
-    document.getElementById('back-to-home').addEventListener('click', () => showView('home-view'));
-    document.getElementById('back-to-selection').addEventListener('click', () => loadUsers());
-    document.getElementById('back-to-days-from-activity').addEventListener('click', () => loadDaysForUser(AppState.currentUser.user_id));
-    document.getElementById('back-to-days').addEventListener('click', () => loadDaysForUser(AppState.currentUser.user_id));
+    const selectUserBtn = document.getElementById('select-user-btn');
+    if (selectUserBtn) selectUserBtn.addEventListener('click', loadUsers);
+    
+    const createUserBtn = document.getElementById('create-user-btn');
+    if (createUserBtn) createUserBtn.addEventListener('click', () => showView('create-user-view'));
+    
+    const backToHome = document.getElementById('back-to-home');
+    if (backToHome) backToHome.addEventListener('click', () => showView('home-view'));
+    
+    const backToSelection = document.getElementById('back-to-selection');
+    if (backToSelection) backToSelection.addEventListener('click', () => loadUsers());
+    
+    const backToDaysFromActivity = document.getElementById('back-to-days-from-activity');
+    if (backToDaysFromActivity) backToDaysFromActivity.addEventListener('click', () => loadDaysForUser(AppState.currentUser.user_id));
+    
+    const backToDays = document.getElementById('back-to-days');
+    if (backToDays) backToDays.addEventListener('click', () => loadDaysForUser(AppState.currentUser.user_id));
     
     // User creation form
-    document.getElementById('create-user-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const username = document.getElementById('new-username').value;
-        const email = document.getElementById('new-email').value;
-        createUser(username, email);
-    });
+    const createUserForm = document.getElementById('create-user-form');
+    if (createUserForm) {
+        createUserForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('new-username').value;
+            const email = document.getElementById('new-email').value;
+            createUser(username, email);
+        });
+    }
     
-    document.getElementById('cancel-creation').addEventListener('click', () => showView('home-view'));
+    const cancelCreation = document.getElementById('cancel-creation');
+    if (cancelCreation) cancelCreation.addEventListener('click', () => showView('home-view'));
+    
+    // Add activity form
+    const addActivityForm = document.getElementById('add-activity-form');
+    if (addActivityForm) {
+        addActivityForm.addEventListener('submit', handleAddActivity);
+    }
     
     // Pattern view buttons
-    document.getElementById('pattern-log-btn').addEventListener('click', () => {
-        AppState.patternView = 'log';
-        document.getElementById('pattern-log-view').classList.remove('hidden');
-        document.getElementById('pattern-results-view').classList.add('hidden');
-        displayPatternLog();
-    });
+    const patternLogBtn = document.getElementById('pattern-log-btn');
+    if (patternLogBtn) {
+        patternLogBtn.addEventListener('click', () => {
+            AppState.patternView = 'log';
+            const patternLogView = document.getElementById('pattern-log-view');
+            if (patternLogView) patternLogView.classList.remove('hidden');
+            const patternResultsView = document.getElementById('pattern-results-view');
+            if (patternResultsView) patternResultsView.classList.add('hidden');
+            displayPatternLog();
+        });
+    }
     
-    document.getElementById('pattern-results-btn').addEventListener('click', () => {
-        AppState.patternView = 'results';
-        document.getElementById('pattern-log-view').classList.add('hidden');
-        document.getElementById('pattern-results-view').classList.remove('hidden');
-        displayPatternResults();
-    });
+    const patternResultsBtn = document.getElementById('pattern-results-btn');
+    if (patternResultsBtn) {
+        patternResultsBtn.addEventListener('click', () => {
+            AppState.patternView = 'results';
+            const patternLogView = document.getElementById('pattern-log-view');
+            if (patternLogView) patternLogView.classList.add('hidden');
+            const patternResultsView = document.getElementById('pattern-results-view');
+            if (patternResultsView) patternResultsView.classList.remove('hidden');
+            displayPatternResults();
+        });
+    }
     
     // Pattern length buttons
-    document.getElementById('pattern-1-btn').addEventListener('click', () => {
-        AppState.currentPatternLength = 1;
-        updatePatternLengthButtons();
-        loadPatternsForUser();
-    });
+    const pattern1Btn = document.getElementById('pattern-1-btn');
+    if (pattern1Btn) {
+        pattern1Btn.addEventListener('click', () => {
+            AppState.currentPatternLength = 1;
+            updatePatternLengthButtons();
+            loadPatternsForUser();
+        });
+    }
     
-    document.getElementById('pattern-2-btn').addEventListener('click', () => {
-        AppState.currentPatternLength = 2;
-        updatePatternLengthButtons();
-        loadPatternsForUser();
-    });
+    const pattern2Btn = document.getElementById('pattern-2-btn');
+    if (pattern2Btn) {
+        pattern2Btn.addEventListener('click', () => {
+            AppState.currentPatternLength = 2;
+            updatePatternLengthButtons();
+            loadPatternsForUser();
+        });
+    }
     
-    document.getElementById('pattern-3-btn').addEventListener('click', () => {
-        AppState.currentPatternLength = 3;
-        updatePatternLengthButtons();
-        loadPatternsForUser();
-    });
+    const pattern3Btn = document.getElementById('pattern-3-btn');
+    if (pattern3Btn) {
+        pattern3Btn.addEventListener('click', () => {
+            AppState.currentPatternLength = 3;
+            updatePatternLengthButtons();
+            loadPatternsForUser();
+        });
+    }
     
-    document.getElementById('pattern-4-btn').addEventListener('click', () => {
-        AppState.currentPatternLength = 4;
-        updatePatternLengthButtons();
-        loadPatternsForUser();
-    });
+    const pattern4Btn = document.getElementById('pattern-4-btn');
+    if (pattern4Btn) {
+        pattern4Btn.addEventListener('click', () => {
+            AppState.currentPatternLength = 4;
+            updatePatternLengthButtons();
+            loadPatternsForUser();
+        });
+    }
     
     // Export data button
-    document.getElementById('export-data-btn').addEventListener('click', exportPatternData);
+    const exportDataBtn = document.getElementById('export-data-btn');
+    if (exportDataBtn) exportDataBtn.addEventListener('click', exportPatternData);
     
     // Add Activity button
-    document.getElementById('add-activity-btn').addEventListener('click', showAddActivityModal);
+    const addActivityBtn = document.getElementById('add-activity-btn');
+    if (addActivityBtn) addActivityBtn.addEventListener('click', showAddActivityModal);
 }
 
 function updatePatternLengthButtons() {
@@ -929,14 +1072,125 @@ async function handleAddActivity(e) {
     }
 }
 
-// Add event listener for the form
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('add-activity-form');
-    if (form) {
-        form.addEventListener('submit', handleAddActivity);
-    }
-});
+// Add event listener for the form (moved to main setup)
+// This is now handled in setupEventListeners()
 
+
+// Apply Activity Filter Function
+function applyActivityFilter() {
+    const select = document.getElementById('activity-filter');
+    const selected = Array.from(select.selectedOptions).map(o => o.value);
+    const filterType = document.querySelector('input[name="filter-type"]:checked').value;
+    
+    if (selected.length === 0) {
+        alert('Please select at least one activity');
+        return;
+    }
+    
+    // Filter patterns based on filter type
+    let filtered;
+    if (filterType === 'exclusive') {
+        // Exclusive: ONLY selected activities must be present (no others)
+        filtered = AppState.currentPatterns.filter(p => 
+            p.occurrences.some(o => 
+                selected.every(a => o.activities.includes(a)) && 
+                o.activities.length === selected.length
+            )
+        );
+    } else if (filterType === 'exclusive-plus') {
+        // Exclusive Plus: ALL selected activities must be present, but others allowed
+        filtered = AppState.currentPatterns.filter(p => 
+            p.occurrences.some(o => selected.every(a => o.activities.includes(a)))
+        );
+    } else {
+        // Non-exclusive: ANY selected activity can be present
+        filtered = AppState.currentPatterns.filter(p => 
+            p.occurrences.some(o => selected.some(a => o.activities.includes(a)))
+        );
+    }
+    
+    // Sort by health benefits
+    filtered.sort((a, b) => b.health_benefits_score - a.health_benefits_score);
+    
+    // Display filtered patterns
+    const patternLogList = document.getElementById('pattern-log-list');
+    if (filtered.length === 0) {
+        patternLogList.innerHTML = '<p style="text-align: center; padding: 20px; color: #666;">No patterns found containing the selected activities.</p>';
+    } else {
+        // Update visualization chart to show filtered patterns
+        const vizContainer = document.getElementById('pattern-visualization');
+        if (vizContainer && filtered.length > 0) {
+            vizContainer.innerHTML = 
+                '<div class="pattern-chart">' +
+                '<h3>📊 Filtered Patterns - Top ' + Math.min(10, filtered.length) + ' Results</h3>' +
+                '<div class="chart-container">' +
+                filtered.slice(0, 10).map((pattern, index) => 
+                    '<div class="pattern-bar" style="width: ' + ((pattern.frequency / filtered[0].frequency) * 100) + '%">' +
+                    '<div class="pattern-info">' +
+                    '<span class="pattern-name">' + pattern.pattern_name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) + '</span>' +
+                    '<span class="pattern-count">' + pattern.frequency + ' times</span>' +
+                    '<span class="pattern-health">🏥 ' + pattern.health_benefits_score + '/100</span>' +
+                    '</div></div>'
+                ).join('') +
+                '</div></div>';
+        }
+        
+        const patternItems = filtered.map((pattern) => {
+            const healthScoreColor = pattern.health_benefits_score >= 80 ? '#4CAF50' :
+                                     pattern.health_benefits_score >= 60 ? '#FF9800' :
+                                     pattern.health_benefits_score >= 40 ? '#FFC107' : '#F44336';
+            
+            return `
+                <div class="pattern-item" onclick="showPatternDetails('${pattern.pattern_id}')">
+                    <div class="pattern-header">
+                        <h4>${pattern.pattern_name}</h4>
+                        <span class="pattern-type">${pattern.pattern_type}</span>
+                    </div>
+                    <div class="pattern-metrics">
+                        <div class="metric-item">📊 ${pattern.avg_productivity}/10 Productivity</div>
+                        <div class="metric-item">😊 ${pattern.avg_satisfaction}/10 Satisfaction</div>
+                    </div>
+                    <div class="health-metrics">
+                        <div class="metric-item">❤️ ${pattern.avg_health_metrics.heart_rate || 'N/A'}</div>
+                        <div class="metric-item">😰 ${pattern.avg_health_metrics.stress_level || 'N/A'}/10 Stress</div>
+                        <div class="metric-item">⚡ ${pattern.avg_health_metrics.energy_level || 'N/A'}/10 Energy</div>
+                        <div class="metric-item">💧 ${pattern.avg_health_metrics.hydration_level || 'N/A'}/10 Hydration</div>
+                        <div class="metric-item">😴 ${pattern.avg_health_metrics.sleep_quality || 'N/A'}/10 Sleep</div>
+                    </div>
+                    <div class="health-benefits" style="border-left: 4px solid ${healthScoreColor};">
+                        🏥 ${pattern.health_benefits_score}/100 Health Benefits
+                        <div>${pattern.health_benefits_description}</div>
+                    </div>
+                    <div class="pattern-frequency">
+                        🔁 ${pattern.frequency} occurrences
+                    </div>
+                    <div class="pattern-activities">
+                        ${pattern.occurrences[0].activities.map(a => '<span class="activity-tag">' + a + '</span>').join('')}
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        let filterTypeText;
+    if (filterType === 'exclusive') {
+        filterTypeText = 'Exclusive (Only selected activities)';
+    } else if (filterType === 'exclusive-plus') {
+        filterTypeText = 'Exclusive Plus (Selected + others)';
+    } else {
+        filterTypeText = 'Non-Exclusive (Any selected activity)';
+    }
+        patternLogList.innerHTML = 
+            '<div style="background: #f8f9fa; padding: 15px; margin-bottom: 20px; border-radius: 4px; border-left: 4px solid #007bff;">' +
+            '<strong>🔍 Filter Applied:</strong> ' + selected.join(', ') + '<br>' +
+            '<small>Type: ' + filterTypeText + ' | Found ' + filtered.length + ' pattern(s)</small>' +
+            '</div>' +
+            patternItems + 
+            '<div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;"><button onclick="displayPatternLog()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Clear Filter</button></div>';
+    }
+    
+    // Close modal
+    document.getElementById('pattern-filter-modal').remove();
+}
 
 // Make functions globally accessible
 window.toggleDemoMode = toggleDemoMode;
@@ -945,3 +1199,6 @@ window.closeActivityModal = closeActivityModal;
 window.showAddActivityModal = showAddActivityModal;
 window.closeAddActivityModal = closeAddActivityModal;
 window.handleAddActivity = handleAddActivity;
+window.applyActivityFilter = applyActivityFilter;
+
+
