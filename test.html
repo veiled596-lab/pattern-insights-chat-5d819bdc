@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UpEye Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .test {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test">
+        <h1>👁️ UpEye Test Page</h1>
+        <p>If you can see this, the basic HTML is working.</p>
+    </div>
+    
+    <div class="test">
+        <h2>JavaScript Test</h2>
+        <p id="js-test">Testing JavaScript...</p>
+    </div>
+    
+    <div class="test">
+        <h2>Supabase Test</h2>
+        <p id="supabase-test">Testing Supabase...</p>
+    </div>
+
+    <script src="supabase.js"></script>
+    <script src="config.js"></script>
+    <script>
+        // Test basic JavaScript
+        document.getElementById('js-test').textContent = '✅ JavaScript is working!';
+        
+        // Test Supabase
+        try {
+            if (window.supabaseClient) {
+                document.getElementById('supabase-test').textContent = '✅ Supabase client loaded successfully!';
+            } else {
+                document.getElementById('supabase-test').textContent = '❌ Supabase client not found';
+            }
+        } catch (error) {
+            document.getElementById('supabase-test').textContent = '❌ Supabase error: ' + error.message;
+        }
+    </script>
+</body>
+</html>

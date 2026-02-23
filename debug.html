@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UpEye Debug</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="main-content">
+        <h1>🔍 UpEye Debug Mode</h1>
+        <div id="debug-output">
+            <p>Loading debug information...</p>
+        </div>
+    </div>
+
+    <script src="supabase.js"></script>
+    <script src="config.js"></script>
+    <script>
+        // Debug function to log errors
+        function debug(message, type = 'info') {
+            const debugDiv = document.getElementById('debug-output');
+            debugDiv.innerHTML += `<p style="color: ${type === 'error' ? 'red' : 'green'}">[${type.toUpperCase()}] ${message}</p>`;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        // Test each component
+        debug('Starting debug test...');
+        
+        // Test 1: Basic HTML
+        debug('✅ HTML loaded successfully');
+        
+        // Test 2: Config loading
+        try {
+            if (typeof SUPABASE_URL !== 'undefined') {
+                debug('✅ Config loaded: SUPABASE_URL found');
+            } else {
+                debug('❌ Config error: SUPABASE_URL not found', 'error');
+            }
+        } catch (error) {
+            debug(`❌ Config error: ${error.message}`, 'error');
+        }
+        
+        // Test 3: Supabase loading
+        try {
+            if (typeof window.supabase !== 'undefined') {
+                debug('✅ Supabase SDK loaded');
+            } else {
+                debug('❌ Supabase SDK not loaded', 'error');
+            }
+        } catch (error) {
+            debug(`❌ Supabase error: ${error.message}`, 'error');
+        }
+        
+        // Test 4: App.js loading
+        try {
+            debug('Loading app.js...');
+        } catch (error) {
+            debug(`❌ App.js loading error: ${error.message}`, 'error');
+        }
+    </script>
+    <script src="app.js"></script>
+    <script>
+        // Test 5: App.js loaded successfully
+        try {
+            if (typeof AppState !== 'undefined') {
+                debug('✅ App.js loaded: AppState available');
+            } else {
+                debug('❌ App.js error: AppState not found', 'error');
+            }
+            
+            if (typeof setupEventListeners !== 'undefined') {
+                debug('✅ setupEventListeners function available');
+            } else {
+                debug('❌ setupEventListeners function not found', 'error');
+            }
+            
+            if (typeof showView !== 'undefined') {
+                debug('✅ showView function available');
+            } else {
+                debug('❌ showView function not found', 'error');
+            }
+        } catch (error) {
+            debug(`❌ App.js runtime error: ${error.message}`, 'error');
+        }
+        
+        debug('Debug test completed!');
+    </script>
+</body>
+</html>

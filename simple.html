@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UpEye - Simple Test</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="main-content">
+        <header class="header">
+            <div class="logo-section">
+                <h1>👁️ UpEye</h1>
+                <p class="tagline">Track Activities. Discover Patterns.</p>
+            </div>
+            <div class="action-buttons">
+                <button id="select-user-btn" class="primary-btn">👤 Select Existing User</button>
+                <button id="create-user-btn" class="secondary-btn">➕ Create New User</button>
+            </div>
+        </header>
+
+        <!-- Home Page View -->
+        <div id="home-view" class="view">
+            <div class="hero-section">
+                <h2>Welcome to UpEye!</h2>
+                <p>Your personal health and activity tracking companion</p>
+            </div>
+        </div>
+
+        <!-- Status Message -->
+        <div id="status-message" class="status-message hidden"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="supabase.js"></script>
+    <script src="config.js"></script>
+    <script>
+        // Simple test without app.js
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Simple test loaded');
+            
+            // Test basic functionality
+            const selectBtn = document.getElementById('select-user-btn');
+            if (selectBtn) {
+                selectBtn.addEventListener('click', () => {
+                    alert('Select User button works!');
+                });
+            }
+            
+            const createBtn = document.getElementById('create-user-btn');
+            if (createBtn) {
+                createBtn.addEventListener('click', () => {
+                    alert('Create User button works!');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

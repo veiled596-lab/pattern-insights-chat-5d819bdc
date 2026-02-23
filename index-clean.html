@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UpEye - Activity Pattern Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="main-content">
+        <header class="header">
+            <div class="logo-section">
+                <h1>👁️ UpEye</h1>
+                <p class="tagline">Track Activities. Discover Patterns.</p>
+            </div>
+            <div class="action-buttons">
+                <button id="select-user-btn" class="primary-btn">👤 Select Existing User</button>
+                <button id="create-user-btn" class="secondary-btn">➕ Create New User</button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main id="main-content">
+            
+            <!-- Home Page View -->
+            <div id="home-view" class="view">
+                <div class="hero-section">
+                    <h2>Welcome to UpEye!</h2>
+                    <p>Your personal health and activity tracking companion</p>
+                    <div class="feature-cards">
+                        <div class="feature-card">
+                            <h3>📊 Track Activities</h3>
+                            <p>Log your daily activities and monitor your health metrics</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔍 Discover Patterns</h3>
+                            <p>Find patterns in your behavior and improve your habits</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📈 Health Insights</h3>
+                            <p>Get detailed analysis of your health and wellness</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Selection View -->
+            <div id="user-selection-view" class="view hidden">
+                <h2>Select a User</h2>
+                <div id="users-list" class="users-grid">
+                    <!-- Users will be loaded here dynamically -->
+                </div>
+                <button id="back-to-home" class="back-btn">← Back to Home</button>
+            </div>
+
+            <!-- Create User View -->
+            <div id="create-user-view" class="view hidden">
+                <h2>Create New User</h2>
+                <form id="create-user-form">
+                    <div class="form-group">
+                        <label for="new-username">Username:</label>
+                        <input type="text" id="new-username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-email">Email:</label>
+                        <input type="email" id="new-email" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="primary-btn">Create User</button>
+                        <button type="button" id="cancel-creation" class="secondary-btn">Cancel</button>
+                    </div>
+                </form>
+                <button id="back-to-home" class="back-btn">← Back to Home</button>
+            </div>
+
+            <!-- Pattern Diagnostics View -->
+            <div id="pattern-diagnostics-view" class="view hidden">
+                <div class="pattern-header">
+                    <h2>📈 Pattern Diagnostics for <span id="pattern-user-name"></span></h2>
+                    <div class="pattern-actions">
+                        <button id="pattern-log-btn" class="primary-btn">📋 Pattern Log</button>
+                        <button id="pattern-results-btn" class="secondary-btn">📊 Pattern Results</button>
+                        <button id="export-data-btn" class="secondary-btn">📥 Export Data</button>
+                        <button id="back-to-home" class="back-btn">← Back to Home</button>
+                    </div>
+                </div>
+                
+                <!-- Pattern Log View -->
+                <div id="pattern-log-view" class="pattern-section">
+                    <h3>📋 Pattern Occurrences</h3>
+                    <div class="pattern-log-container">
+                        <div class="pattern-filters">
+                            <div class="pattern-length-buttons">
+                                <button id="pattern-1-btn" class="pattern-length-btn secondary-btn">Length 1</button>
+                                <button id="pattern-2-btn" class="pattern-length-btn primary-btn">Length 2</button>
+                                <button id="pattern-3-btn" class="pattern-length-btn secondary-btn">Length 3</button>
+                                <button id="pattern-4-btn" class="pattern-length-btn secondary-btn">Length 4</button>
+                            </div>
+                        </div>
+                        <div id="pattern-log-list" class="pattern-list">
+                            <!-- Pattern items will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pattern Results View -->
+                <div id="pattern-results-view" class="pattern-section hidden">
+                    <h3>📊 Pattern Analysis Results</h3>
+                    <div class="pattern-stats">
+                        <div class="stat-card">
+                            <h4>Total Patterns</h4>
+                            <p id="total-patterns">0</p>
+                        </div>
+                        <div class="stat-card">
+                            <h4>Most Frequent</h4>
+                            <p id="most-frequent">-</p>
+                        </div>
+                        <div class="stat-card">
+                            <h4>Avg Health Score</h4>
+                            <p id="avg-health-score">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Status Message -->
+        <div id="status-message" class="status-message hidden"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="supabase.js"></script>
+    <script src="config.js"></script>
+    <script src="app-clean.js"></script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UpEye - Minimal App Test</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="main-content">
+        <header class="header">
+            <div class="logo-section">
+                <h1>👁️ UpEye</h1>
+                <p class="tagline">Track Activities. Discover Patterns.</p>
+            </div>
+            <div class="action-buttons">
+                <button id="select-user-btn" class="primary-btn">👤 Select Existing User</button>
+                <button id="create-user-btn" class="secondary-btn">➕ Create New User</button>
+            </div>
+        </header>
+
+        <!-- Home Page View -->
+        <div id="home-view" class="view">
+            <div class="hero-section">
+                <h2>Welcome to UpEye!</h2>
+                <p>Your personal health and activity tracking companion</p>
+                <div class="feature-cards">
+                    <div class="feature-card">
+                        <h3>📊 Track Activities</h3>
+                        <p>Log your daily activities and monitor your health metrics</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>🔍 Discover Patterns</h3>
+                        <p>Find patterns in your behavior and improve your habits</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>📈 Health Insights</h3>
+                        <p>Get detailed analysis of your health and wellness</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Message -->
+        <div id="status-message" class="status-message hidden"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app-minimal.js"></script>
+</body>
+</html>
